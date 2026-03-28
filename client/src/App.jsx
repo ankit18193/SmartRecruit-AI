@@ -8,7 +8,7 @@ import RecruiterJobDetails from './pages/RecruiterJobDetails';
 
 
 
-import RecruiterSettings from './pages/settings';
+import RecruiterSettings from './pages/Settings';
 
 
 import CandidateSettings from './pages/candidate/Settings';
