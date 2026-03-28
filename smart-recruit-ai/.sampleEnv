@@ -1,0 +1,22 @@
+CLOUD_SECRET=
+CLOUD_API_KEY=
+CLOUD_NAME=
+GEMINI_API_KEY=
+
+MONGO_URI=
+JWT_SECRET=
+
+# Google OAuth
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
+
+# Frontend URL for redirecting after successful login
+FRONTEND_URL=http://localhost:5173
+
+# LinkedIn OAuth
+LINKEDIN_CLIENT_ID=your_linkedin_client_id_here
+LINKEDIN_CLIENT_SECRET=your_linkedin_client_secret_here
+LINKEDIN_CALLBACK_URL=http://localhost:5000/api/auth/linkedin/callback
+
+
