@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'https://smartrecruit-ai-8toz.onrender.com',
+  baseURL: 'https://smartrecruit-ai-8toz.onrender.com/api',
 });
 
 

@@ -25,7 +25,7 @@ connectDB();
 
 const allowedOrigins = [
     "http://localhost:5173",
-    "https://smart-recruit.vercel.app", 
+    "https://smart-recruit-ai-weld.vercel.app", 
   ];
   
   app.use(cors({
