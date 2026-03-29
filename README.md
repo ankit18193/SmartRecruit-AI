@@ -34,7 +34,7 @@ Traditional hiring is broken. Recruiters receive thousands of resumes, making ma
 Traditional hiring is slow. **Smart Recruit AI** automates the pipeline, reducing recruiter workload by 80% while giving instant progress updates to candidates.
 
 <div align="center">
-  <img src="./screenshots/architecture.jpg" alt="System Architecture Flow" width="80%" />
+  <img src="./screenshots/WhatsApp Image 2026-03-29 at 12.34.52 PM.jpeg" alt="System Architecture Flow" width="80%" />
 </div>
 
 ### 🔄 The AI Hiring Flow:
@@ -50,25 +50,117 @@ Traditional hiring is slow. **Smart Recruit AI** automates the pipeline, reducin
 
 ## 📸 Feature Walkthrough
 
-### 1. Smart Role-Based Authentication
-Solved OAuth role-mismatch bugs by implementing robust state preservation. Secure routing for Candidates and Recruiters.
+### 🔐 1. Smart Role-Based Authentication
+Secure, state-preserved routing ensuring candidates and recruiters land on their dedicated portals without OAuth role-mismatch conflicts.
 <div align="center">
   <img src="./screenshots/login.png" alt="Role-Based Login" width="90%" />
 </div>
 <br/>
 
-### 2. The Recruiter Dashboard
-A centralized ATS hub to track active jobs, view applicant pipelines, and manage talent seamlessly.
+### 🏢 2. The Recruiter Command Center
+A powerful, high-level dashboard to track active job listings, monitor total applicants, and gauge overall system metrics at a glance.
 <div align="center">
   <img src="./screenshots/dashboard.png" alt="Recruiter Dashboard" width="90%" />
 </div>
 <br/>
 
-### 3. AI Candidate Insights & Match Rates
-Detailed view of candidate profiles showing their AI-calculated Match Rate, parsed skills, and application status.
+### 🎯 3. The Candidate Career Portal
+A personalized hub for job seekers to discover AI-matched roles, view total applications, and navigate their hiring journey with ease.
 <div align="center">
-  <img src="./screenshots/candidate-profile.png" alt="AI Match Rate" width="90%" />
+  <img src="./screenshots/candidatedashboard.png" alt="Candidate Dashboard" width="90%" />
 </div>
+<br/>
+
+### 🧠 4. AI Profile Parsing & Match Rates
+Instantaneous resume analysis generating a precise Match Rate % and skill breakdown to help recruiters make faster shortlisting decisions.
+<div align="center">
+  <img src="./screenshots/image.png" alt="AI Match Rate" width="90%" />
+  <img src="./screenshots/candidatedashboard.png" alt="Candidate Insights" width="90%" />
+</div>
+<br/>
+
+### 🔔 5. Real-Time Application Tracking
+Live status updates and comprehensive tracking, allowing candidates to see exactly where they stand—from "Applied" to "Shortlisted".
+<div align="center">
+  <img src="./screenshots/Candnotification.png" alt="Application Tracking" width="90%" />
+</div>
+<br/>
+
+### 🤖 6. Automated AI Mock Interviews
+A dynamic, automated interface where shortlisted candidates interact with an AI-driven system for their initial technical and behavioral screening.
+<div align="center">
+  <img src="./screenshots/image1.png" alt="AI Mock Interview" width="90%" />
+</div>
+<br/>
+
+### 📈 7. Candidate's AI Feedback Report
+Detailed, AI-generated performance feedback provided directly to the candidate after their mock interview, highlighting strengths and areas to improve.
+<div align="center">
+  <img src="./screenshots/assment.png" alt="Candidate Feedback" width="90%" />
+</div>
+<br/>
+
+### 📋 8. Recruiter's AI Assessment View
+Comprehensive evaluation reports allowing recruiters to review a candidate's AI interview performance and make data-driven progression decisions.
+<div align="center">
+  <img src="./screenshots/recruiter-assmt.png" alt="Recruiter Assessment View" width="90%" />
+</div>
+<br/>
+
+### 📅 9. Seamless HR Interview Scheduling
+One-click scheduling tools for recruiters to effortlessly invite top-performing, AI-vetted candidates to the final human-led interview round.
+<div align="center">
+  <img src="./screenshots/intSch.png" alt="Interview Scheduling" width="90%" />
+</div>
+<br/>
+
+### 📹 10. Candidate Interview Lobby
+A streamlined access point for candidates to view their scheduled time slots and seamlessly join their final HR video interviews.
+<div align="center">
+  <img src="./screenshots/join-hr-interview .png" alt="Join HR Interview" width="90%" />
+</div>
+<br/>
+
+### 👤 11. Comprehensive Candidate Profiles
+Detailed digital portfolios where candidates can easily manage their personal information, update resumes, and showcase their skills.
+<div align="center">
+  <img src="./screenshots/cp.png" alt="Candidate Profile" width="90%" />
+</div>
+<br/>
+
+### 📊 12. Recruitment Analytics & Insights
+Visual data representations tracking hiring metrics, pipeline health, and applicant conversion rates to optimize the recruitment strategy.
+<div align="center">
+  <img src="./screenshots/analytics.png" alt="Analytics Dashboard" width="90%" />
+</div>
+<br/>
+
+### 👥 13. Applicant Pipeline Management
+Organized, filterable tables of applied candidates allowing recruiters to easily track statuses, view match rates, and move talent through the funnel.
+<div align="center">
+  <img src="./screenshots/candidates.png" alt="Applicant Pipeline" width="90%" />
+</div>
+<br/>
+
+### 💼 14. Active Job Postings Management
+A dedicated control center for recruiters to create new opportunities, edit requirements, and monitor deployed job roles across the platform.
+<div align="center">
+  <img src="./screenshots/jobs.png" alt="Job Postings Management" width="90%" />
+</div>
+<br/>
+
+
+---
+
+## 🎉 Ready to Experience It Live?
+
+While this documentation covers the core architecture and setup, the real magic happens on the platform. I invite you to create a test account, upload a resume to see the AI parsing in action, or experience the automated interview portal firsthand!
+
+**👉 [Click here to explore Smart Recruit AI](https://smart-recruit-ai.vercel.app)**
+
+---
+
+
 
 ## 🧠 Engineering Highlight: The OAuth Role Fix
 
@@ -144,7 +236,7 @@ GET        |    /api/applications/user        |  Get candidate's applications
 POST       |    /api/interviews/start/:jobId  |  Trigger AI Interview
 ---------------------------------------------------------------------------
 
-
+--------------
 👨‍💻 Author
 ANKIT KUMAR YADAV
 Full Stack MERN Developer | CSE Student (4th Year)
