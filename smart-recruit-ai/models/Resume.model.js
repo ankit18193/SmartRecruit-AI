@@ -120,6 +120,19 @@ const resumeSchema = new mongoose.Schema(
       type: Number,
       default: 0
     }
+    ,
+    status: {
+      type: String,
+      enum: ["Pending", "Processing", "Completed", "Failed"],
+      default: "Pending"
+    },
+    processedAt: {
+      type: Date
+    },
+    error: {
+      type: String,
+      default: ""
+    }
   },
   { timestamps: true }
 );

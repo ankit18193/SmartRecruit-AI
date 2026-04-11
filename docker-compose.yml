@@ -1,0 +1,77 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:7.0
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  redis:
+    image: redis:8-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: ./smart-recruit-ai
+    container_name: backend
+    command: node server.js
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./server/uploads:/app/uploads
+    depends_on:
+      - mongo
+      - redis
+    env_file:
+      - ./smart-recruit-ai/.env
+    environment:
+    - REDIS_HOST=redis
+
+  worker:
+    build:
+      context: ./smart-recruit-ai
+    container_name: worker
+    command: node worker.js
+    volumes:
+      - ./server/uploads:/app/uploads
+    depends_on:
+      - mongo
+      - redis
+    env_file:
+      - ./smart-recruit-ai/.env
+    environment:
+      - REDIS_HOST=redis 
+
+  frontend:
+    build:
+      context: ./client
+      args:
+        VITE_API_URL: https://verbose-potato-69r94w475rvxf54xr-5000.app.github.dev/api
+    container_name: frontend
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_API_URL=https://verbose-potato-69r94w475rvxf54xr-5000.app.github.dev/api
+    depends_on:
+      - backend
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m   # 🔥 IMPORTANT (reduce memory)
+    ports:
+      - "9200:9200"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+
+volumes:
+  mongo-data:
+  es-data:

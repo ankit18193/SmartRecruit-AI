@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'https://smartrecruit-ai-8toz.onrender.com/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
 });
 
 
@@ -83,6 +83,11 @@ export const submitInterview = (interviewId, answers) => {
 
 export const getInterview = (jobId) => {
   return API.get(`/interviews/${jobId}`);
+};
+
+export const searchJobs = async (query) => {
+  const res = await fetch(`/api/jobs/search?query=${query}`);
+  return res.json();
 };
 
 export default API;
