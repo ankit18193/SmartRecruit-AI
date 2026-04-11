@@ -1,8 +1,72 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { HfInference } = require("@huggingface/inference");
+const Groq = require("groq-sdk");
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+// ⏱️ TIMEOUT
+const timeout = (ms) =>
+  new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("TIMEOUT")), ms),
+  );
 
+// 🧠 GROQ (PRIMARY)
+// 🧠 GROQ (PRIMARY)
+async function callGroq(systemRules, resumeText) {
+  if (!process.env.GROQ_API_KEY) throw new Error("Missing GROQ_API_KEY in ENV");
+  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+  try {
+    console.log("⚡ GROQ START");
+
+    const completion = await Promise.race([
+      groq.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          {
+            role: "user",
+            content: `${systemRules}\n\nRESUME:\n${resumeText}`,
+          },
+        ],
+        temperature: 0.3,
+        response_format: { type: "json_object" },
+      }),
+      timeout(15000),
+    ]);
+
+    return completion.choices[0].message.content;
+  } catch (err) {
+    console.error("❌ GROQ FAILED:", err.message);
+    throw new Error("GROQ_FAILED");
+  }
+}
+
+// 🧠 HUGGING FACE (FALLBACK)
+async function callHuggingFace(systemRules, resumeText) {
+  if (!process.env.HF_API_KEY) throw new Error("Missing HF_API_KEY in ENV");
+  const hf = new HfInference(process.env.HF_API_KEY);
+
+  try {
+    console.log("🧠 HF START");
+
+    const res = await Promise.race([
+      hf.chatCompletion({
+        model: "Qwen/Qwen2.5-7B-Instruct",
+        messages: [
+          {
+            role: "user",
+            content: `${systemRules}\n\nRESUME:\n${resumeText}`,
+          },
+        ],
+        max_tokens: 2000,
+        temperature: 0.3, // 🔥 Fixed temperature here too
+      }),
+      timeout(15000),
+    ]);
+
+    return res.choices[0].message.content;
+  } catch (err) {
+    console.error("❌ HF FAILED:", err.message);
+    throw new Error("HF_FAILED");
+  }
+}
 
 async function analyzeResume(resumeText) {
   const prompt = `
@@ -51,6 +115,7 @@ You are a backend API system. You MUST return ONLY a raw, minified JSON object.
         "label": string,
         "category": "frontend" | "backend" | "devops" | "core" | "other",
         "priority": "high" | "medium" | "low",
+        "currentStackEvidence": "string (name the exact tool from the resume this relates to)",
         "reasoning": string
       }
     ],
@@ -60,6 +125,7 @@ You are a backend API system. You MUST return ONLY a raw, minified JSON object.
         "label": string,
         "category": "growth" | "technical",
         "priority": "high" | "medium" | "low",
+        "basedOnResumeProject": "string (name the exact project or role this improves)",
         "reasoning": string
       }
     ]
@@ -138,28 +204,108 @@ ALWAYS:
 - convert weaknesses → opportunities
 - make candidate feel they are "1–2 steps away from breakthrough"
 
+⚠️ ANTI-GENERIC OUTPUT FILTER:
+Avoid repeating common suggestions like:
+- Cloud Computing
+- Cybersecurity
+- Data Science
+- Machine Learning
+
+ONLY include them if:
+- They are clearly missing AND
+- You justify it using resume evidence
+
+Otherwise, DO NOT mention them.
+
+---
+
+⚠️ DIVERSITY ENFORCEMENT RULE:
+
+Across strengths and missingSkills:
+- You MUST avoid repeating common industry suggestions across candidates.
+- You MUST prioritize skills that are CLOSE to the candidate’s current stack.
+
+STRICT RULE:
+- If candidate works in backend → suggest deeper backend/system design topics
+- If candidate works in frontend → suggest frontend/system/UI depth
+- DO NOT jump to generic areas like:
+  Cloud, ML, Cybersecurity
+  UNLESS absolutely necessary AND strongly justified.
+
+If suggestions look similar to a typical software engineer template → REWRITE them.
+
+⚠️ SKILL PROXIMITY RULE:
+
+You MUST identify gaps based on what the candidate is ALREADY doing.
+
+Example:
+- If candidate uses Redis → suggest distributed caching strategies, not ML
+- If candidate uses Node.js → suggest system design, scaling, event-driven architecture
+- If candidate uses React → suggest performance optimization, SSR, state architecture
+
+DO NOT jump to unrelated domains.
+
+⚠️ STACK-BASED ANALYSIS:
+
+Every missing skill MUST be an extension of:
+- existing tools
+- existing projects
+- existing architecture
+
+❌ BAD:
+"Learn Machine Learning"
+
+✅ GOOD:
+"Candidate uses BullMQ but lacks deeper understanding of distributed job orchestration patterns like event-driven microservices"
+
 ---
 
 🧠 REASONING RULES (MAXIMUM DEPTH REQUIRED):
 
+⚠️ CRITICAL PERSONALIZATION RULE:
+- EVERY insight MUST be derived directly from the resume content.
+- You MUST explicitly reference technologies, tools, projects, or experience mentioned in the resume.
+- DO NOT generate generic career advice.
+
+❌ BAD EXAMPLE:
+"Learn Cloud Computing to improve scalability"
+
+✅ GOOD EXAMPLE:
+"The candidate has experience with Redis and BullMQ for backend systems but has no exposure to cloud platforms like AWS or GCP, which limits their ability to deploy scalable distributed systems."
+
+- If two resumes are different, the output MUST be noticeably different.
+- If your output looks reusable for another candidate, it is WRONG.
+
+---
+
+⚠️ THINKING PRIORITY RULE:
+Focus on depth over quantity.
+If fewer insights are more accurate, prefer fewer.
+Do NOT generate filler content just to meet structure requirements.
+
+---
+
 Strengths:
-- 2–3 sentences.
 - Mention REAL signals from resume (projects, stack, decisions).
 - Make the candidate feel PROUD of what they've accomplished.
 
-Missing Skills (THE MENTOR'S GUIDANCE):
-- 5–6 sentences minimum.
+Missing Skills (HIGHLY PERSONALIZED GAP ANALYSIS):
+- MUST explain WHY this skill is missing using resume evidence.
+- MUST mention what the candidate currently has and what is missing.
+- MUST connect the gap to real-world engineering limitations.
 - Do not just point out the gap. Frame it as their "Next Superpower".
 - Explain the specific industry demand for this skill.
 - Detail exactly what real-world, scalable architectures they cannot currently build without it.
-- End with massive motivation (e.g., "Mastering this bridges the exact gap between your current profile and a Senior role.")
+- End with massive motivation.
 
 Suggestions (THE ROADMAP):
-- 6–8 sentences minimum.
+- Suggestions MUST be based on the candidate's CURRENT stack.
+- DO NOT give generic "learn X" advice.
+- ALWAYS connect suggestion → candidate’s existing skills → next logical upgrade.
 - Provide a step-by-step micro-roadmap.
 - Phase 1: Tell them exactly what to study or read first.
-- Phase 2: Give them an EXACT, highly specific project idea to build using this skill. Include architecture hints.
-- Phase 3: Explain exactly how adding this project to their resume will drastically boost their salary and interview callbacks. Sound like a mentor pushing them to greatness.
+- Phase 2: Give them an EXACT, highly specific project idea.
+- Phase 3: Explain impact on salary and interviews.
 
 ---
 
@@ -176,7 +322,7 @@ longTerm:
 
 ---
 
- MINDSET BOOST (VERY IMPORTANT):
+MINDSET BOOST (VERY IMPORTANT):
 
 Write a powerful 2–3 sentence message that:
 - builds confidence
@@ -187,24 +333,26 @@ Write a powerful 2–3 sentence message that:
 Example tone:
 "You are not behind — you are just one strong project away from standing out."
 
-//  UPGRADE 3: ATS Formatting Check
 ---
+
 ATS & FORMATTING CHECK:
 If their resume lacks quantifiable metrics (e.g., "improved speed by 40%"), explicitly mention this in one of the "suggestions" and tell them exactly how to rewrite their bullet points. 
 
 ---
 
-MINIMUM DATA:
-- 5 skills
-- 3 strengths
-- 4 missingSkills
-- 4 suggestions
+⚠️ FINAL HARD RULE:
+
+You MUST include at least 2 UNIQUE technologies or project names from the resume inside EACH:
+- strength reasoning
+- missing skill reasoning
+
+If not → your answer is INVALID
 
 ---
 
 RESUME TEXT:
 """
-${resumeText}
+<resume will be provided separately>
 """
 `;
 
@@ -218,71 +366,113 @@ ${resumeText}
     certifications: [],
     education: { cgpa: 0 },
     careerStrategy: { shortTerm: "", midTerm: "", longTerm: "" },
-    mindsetBoost: ""
+    mindsetBoost: "",
   };
 
+  console.log("PROMPT LENGTH:", prompt.length);
+
   try {
-    const result = await model.generateContent(prompt);
-    let text = result.response.text();
+    let text = "";
 
-    console.log("RAW AI RESPONSE RECEIVED");
+    // 🥇 GROQ FIRST
+    try {
+      // 🔥 Pass BOTH variables!
+      text = await callGroq(prompt, resumeText);
+      console.log("✅ GROQ SUCCESS");
+    } catch (groqError) {
+      console.log("⚠️ GROQ FAILED → switching to HF");
 
-    
-    text = text.replace(/```json/gi, "").replace(/```/g, "").trim();
-
-    
-    const startIndex = text.indexOf("{");
-    const endIndex = text.lastIndexOf("}");
-    
-    if (startIndex !== -1 && endIndex !== -1) {
-      const jsonString = text.substring(startIndex, endIndex + 1);
-      const aiParsed = JSON.parse(jsonString);
-
-      
-      finalParsedData = {
-        aiScore: typeof aiParsed.aiScore === "number" ? aiParsed.aiScore : 0,
-        confidenceScore: typeof aiParsed.confidenceScore === "number" ? aiParsed.confidenceScore : 0,
-        marketLevel: aiParsed.marketLevel || "beginner",
-        skills: Array.isArray(aiParsed.skills) ? aiParsed.skills : [],
-        insights: {
-          strengths: Array.isArray(aiParsed.insights?.strengths) ? aiParsed.insights.strengths : [],
-          missingSkills: Array.isArray(aiParsed.insights?.missingSkills) ? aiParsed.insights.missingSkills : [],
-          suggestions: Array.isArray(aiParsed.insights?.suggestions) ? aiParsed.insights.suggestions : []
-        },
-        projects: Array.isArray(aiParsed.projects) ? aiParsed.projects : [],
-        certifications: Array.isArray(aiParsed.certifications) ? aiParsed.certifications : [],
-        education: { cgpa: aiParsed.education?.cgpa || 0 },
-        careerStrategy: {
-          shortTerm: aiParsed.careerStrategy?.shortTerm || "",
-          midTerm: aiParsed.careerStrategy?.midTerm || "",
-          longTerm: aiParsed.careerStrategy?.longTerm || ""
-        },
-        mindsetBoost: aiParsed.mindsetBoost || ""
-      };
+      try {
+        // 🔥 Pass BOTH variables!
+        text = await callHuggingFace(prompt, resumeText);
+        console.log("✅ HF SUCCESS");
+      } catch (hfError) {
+        console.log("❌ BOTH AI FAILED");
+        throw new Error("AI_ANALYSIS_FAILED_ALL_RETRIES");
+      }
     }
+
+    // ❌ EMPTY CHECK
+    if (!text || text.length < 20) {
+      console.log("❌ EMPTY AI RESPONSE");
+      throw new Error("EMPTY_AI_RESPONSE");
+    }
+
+    console.log("AI RESPONSE RECEIVED (length):", text.length);
+
+    // 🧹 CLEAN
+    text = text
+      .replace(/```json/gi, "")
+      .replace(/```/g, "")
+      .trim();
+
+    // ✅ SAFE JSON EXTRACTION
+    const match = text.match(/\{[\s\S]*\}/);
+
+    if (!match) {
+      console.log("❌ JSON NOT FOUND");
+      throw new Error("INVALID_JSON_FORMAT");
+    }
+
+    const jsonString = match[0];
+
+    let aiParsed = {};
+
+    try {
+      aiParsed = JSON.parse(jsonString);
+    } catch (parseError) {
+      console.log("❌ JSON PARSE FAILED");
+      throw new Error("JSON_PARSE_FAILED");
+    }
+
+    // ✅ MAIN MAPPING (UNCHANGED)
+    finalParsedData = {
+      aiScore: typeof aiParsed.aiScore === "number" ? aiParsed.aiScore : 0,
+      confidenceScore:
+        typeof aiParsed.confidenceScore === "number"
+          ? aiParsed.confidenceScore
+          : 0,
+      marketLevel: aiParsed.marketLevel || "beginner",
+      skills: Array.isArray(aiParsed.skills) ? aiParsed.skills : [],
+      insights: {
+        strengths: Array.isArray(aiParsed.insights?.strengths)
+          ? aiParsed.insights.strengths
+          : [],
+        missingSkills: Array.isArray(aiParsed.insights?.missingSkills)
+          ? aiParsed.insights.missingSkills
+          : [],
+        suggestions: Array.isArray(aiParsed.insights?.suggestions)
+          ? aiParsed.insights.suggestions
+          : [],
+      },
+      projects: Array.isArray(aiParsed.projects) ? aiParsed.projects : [],
+      certifications: Array.isArray(aiParsed.certifications)
+        ? aiParsed.certifications
+        : [],
+      education: { cgpa: aiParsed.education?.cgpa || 0 },
+      careerStrategy: {
+        shortTerm: aiParsed.careerStrategy?.shortTerm || "",
+        midTerm: aiParsed.careerStrategy?.midTerm || "",
+        longTerm: aiParsed.careerStrategy?.longTerm || "",
+      },
+      mindsetBoost: aiParsed.mindsetBoost || "",
+    };
+
+    return finalParsedData;
   } catch (error) {
-    console.error("Gemini API or Parsing Error:", error.message);
-    if (error.message.includes("429") || error.message.toLowerCase().includes("quota")) {
-      throw new Error("QUOTA_EXCEEDED");
-    }
-    throw new Error("AI_ANALYSIS_FAILED");
+    console.error("AI Processing Error:", error.message);
+    throw error;
   }
-
-  return finalParsedData;
 }
 
-
-
+// 🧠 GENERIC RESPONSE (NOW USING GROQ)
 async function generateAIResponse(prompt) {
   try {
-    const result = await model.generateContent(prompt);
-    return result.response.text();
+    return await callGroq(prompt);
   } catch (error) {
     console.error("Generic AI Error:", error.message);
     throw new Error("AI_GENERATION_FAILED");
   }
 }
 
-
 module.exports = { analyzeResume, generateAIResponse };
-

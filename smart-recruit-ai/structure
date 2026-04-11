@@ -1,0 +1,71 @@
+smart-recruit-ai/
+│
+├── config/
+│   ├── cloudinary.js
+│   ├── db.js
+│   ├── passport.js
+│   └── redis.js
+│
+├── controllers/
+│   ├── ai.controller.js
+│   ├── application.controller.js
+│   ├── auth.controller.js
+│   ├── interview.controller.js
+│   ├── job.controller.js
+│   ├── notification.controller.js
+│   ├── resume.controller.js
+│   └── user.controller.js
+│
+├── middleware/
+│   ├── auth.middleware.js
+│   ├── cache.middleware.js
+│   ├── role.middleware.js
+│   └── upload.middleware.js
+│
+├── models/
+│   ├── Application.model.js
+│   ├── interview.model.js
+│   ├── job.model.js
+│   ├── notification.model.js
+│   ├── Resume.model.js
+│   └── user.model.js
+│
+├── queues/
+│   └── resumeQueue.js
+│
+├── routes/
+│   ├── ai.routes.js
+│   ├── application.routes.js
+│   ├── auth.routes.js
+│   ├── interview.routes.js
+│   ├── job.routes.js
+│   ├── notification.routes.js
+│   ├── resume.routes.js
+│   └── user.routes.js
+│
+├── uploads/
+│
+├── utils/
+│   ├── ai.service.js
+│   ├── jwt.service.js
+│   ├── notification.service.js
+│   └── parseResume.js
+│
+├── workers/
+│   └── resumeWorker.js
+│
+├── node_modules/
+│
+├── .dockerignore
+├── .env
+├── .env.example
+├── .gitignore
+├── .sampleEnv
+├── Dockerfile
+├── docker-compose.yml
+├── dump.rdb
+├── package-lock.json
+├── package.json
+├── server.js
+├── worker.js
+└── README.md

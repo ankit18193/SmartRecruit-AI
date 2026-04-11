@@ -58,7 +58,7 @@ const Login = () => {
   };
 
   const handleSocialLogin = (platform) => {
-    const BASE_URL = import.meta.env.VITE_API_URL || "https://smartrecruit-ai-8toz.onrender.com/api";
+    const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
     if (platform === 'Google') {
       window.location.href = `${BASE_URL}/auth/google?role=${selectedRole}`;
     } else if (platform === 'LinkedIn') {
