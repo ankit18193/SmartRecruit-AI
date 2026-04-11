@@ -1,7 +1,10 @@
 const { Client } = require("@elastic/elasticsearch");
 
 const client = new Client({
-  node: "http://elasticsearch:9200",
+  node: process.env.ELASTIC_URL,
+  auth: {
+    apiKey: process.env.ELASTIC_API_KEY,
+  },
   maxRetries: 5,
   requestTimeout: 60000,
 });
@@ -13,14 +16,12 @@ async function createJobIndex() {
   if (!indexExists) {
     await client.indices.create({
       index: "jobs",
-      body: {
-        mappings: {
-          properties: {
-            title: { type: "text" },
-            description: { type: "text" },
-            requiredSkills: { type: "text" },
-            experienceRequired: { type: "integer" },
-          },
+      mappings: {
+        properties: {
+          title: { type: "text" },
+          description: { type: "text" },
+          requiredSkills: { type: "text" },
+          experienceRequired: { type: "integer" },
         },
       },
     });
