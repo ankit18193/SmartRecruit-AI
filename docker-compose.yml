@@ -51,12 +51,12 @@ services:
     build:
       context: ./client
       args:
-        VITE_API_URL: http://100.53.1.196:5000/api
+        VITE_API_URL: http://13.222.176.234:5000/api
     container_name: frontend
     ports:
       - "5173:80"
     environment:
-      - VITE_API_URL=http://100.53.1.196:5000/api
+      - VITE_API_URL=http://13.222.176.234:5000/api
     depends_on:
       - backend
 

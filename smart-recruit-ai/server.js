@@ -38,7 +38,7 @@ const allowedOrigins = allowAllOrigins
   ? []
   : (allowedOriginsEnv
       ? allowedOriginsEnv.split(",").map((s) => s.trim()).filter(Boolean)
-      : ["http://localhost:5173","http://100.53.1.196:5173", "https://smart-recruit-ai-weld.vercel.app", "https://verbose-potato-69r94w475rvxf54xr-5173.app.github.dev"]);
+      : ["http://localhost:5173","http://13.222.176.234:5173", "https://smart-recruit-ai-weld.vercel.app", "https://13.222.176.234:5000"]);
 
 console.log("CORS allowed origins:", allowAllOrigins ? "* (all origins)" : allowedOrigins);
 
