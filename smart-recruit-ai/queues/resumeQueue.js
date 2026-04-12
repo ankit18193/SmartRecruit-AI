@@ -1,11 +1,7 @@
 const { Queue } = require("bullmq");
 const IORedis = require("ioredis");
 
-const connection = new IORedis({
-  host: process.env.REDIS_HOST || "redis", // 🔥 FIX
-  port: process.env.REDIS_PORT || 6379,
-  maxRetriesPerRequest: null,
-});
+const connection = new (require("ioredis"))(process.env.REDIS_URL);
 
 const resumeQueue = new Queue("resumeQueue", {
   connection,
