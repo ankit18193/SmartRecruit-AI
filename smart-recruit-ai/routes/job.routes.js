@@ -2,6 +2,7 @@ const express = require("express");
 const auth = require("../middleware/auth.middleware.js");
 const role = require("../middleware/role.middleware.js");
 const { cache, invalidateByPattern } = require("../middleware/cache.middleware");
+const { searchJobs } = require("../controllers/job.controller");
 
 const router = express.Router();
 
@@ -20,7 +21,7 @@ router.get('/', auth, cache('jobs:all', 60), jobController.getAllJobs);
 
 router.get('/recommended', auth, role('candidate'), cache((req) => `jobs:recommended:${req.user.id}`, 60), jobController.getRecommendedJobs);
 
-
+router.get("/search", searchJobs);
 
 router.get('/my-jobs', auth, role('recruiter'), cache((req) => `jobs:my:${req.user.id}`, 60), jobController.getMyJobs);
 
@@ -40,6 +41,6 @@ router.get('/:jobId/dashboard', auth, role('recruiter'), cache((req) => `job:${r
 
 router.delete('/:jobId', auth, role('recruiter'), jobController.deleteJob);
 
-router.get("/search", searchJobs);
+
 
 module.exports = router;
