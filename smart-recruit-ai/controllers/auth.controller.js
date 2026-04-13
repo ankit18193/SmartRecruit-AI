@@ -7,7 +7,7 @@ async function register(req, res) {
   try {
     const { name, email, password, role } = req.body;
 
-    // Validation checks
+   
     if (!name || !email || !password || !role) {
       console.warn('Register validation failed:', { name: !!name, email: !!email, password: !!password, role: !!role });
       return res.status(400).json({ 
@@ -15,7 +15,7 @@ async function register(req, res) {
       });
     }
 
-    // Email format validation
+    
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       console.warn('Invalid email format:', email);
@@ -24,14 +24,14 @@ async function register(req, res) {
       });
     }
 
-    // Password length check
+    
     if (password.length < 6) {
       return res.status(400).json({ 
         message: 'Password must be at least 6 characters long' 
       });
     }
 
-    // Check if user already exists
+    
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       console.warn('Email already registered:', email);
@@ -40,10 +40,10 @@ async function register(req, res) {
       });
     }
 
-    // Hash password
+    
     const hashed = await bcrypt.hash(password, 10);
 
-    // Create user
+    
     const user = await User.create({ name, email, password: hashed, role });
     console.log('User registered successfully:', user.email);
     
@@ -64,7 +64,7 @@ async function register(req, res) {
       stack: err.stack
     });
 
-    // Handle MongoDB duplicate key error
+    
     if (err.code === 11000) {
       const field = Object.keys(err.keyPattern)[0];
       return res.status(409).json({ 
@@ -72,7 +72,6 @@ async function register(req, res) {
       });
     }
 
-    // Handle validation errors
     if (err.name === 'ValidationError') {
       const messages = Object.values(err.errors).map(e => e.message);
       return res.status(400).json({ 
@@ -91,14 +90,14 @@ async function login(req, res) {
   try {
     const { email, password } = req.body;
 
-    // Validation
+    
     if (!email || !password) {
       return res.status(400).json({ 
         message: 'Email and password are required' 
       });
     }
 
-    // Check if JWT_SECRET is set
+    
     if (!process.env.JWT_SECRET) {
       console.error('JWT_SECRET is not set in environment variables');
       return res.status(500).json({ 

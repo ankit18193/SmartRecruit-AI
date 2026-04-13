@@ -42,22 +42,22 @@ const Analytics = () => {
       const jobs = Array.isArray(jobsRes?.data) ? jobsRes.data : jobsRes?.data?.jobs || [];
       const apps = appsRes?.data?.applications || [];
 
-      // 🟢 1. Calculate Core Stats
+      
       const hired = apps.filter(a => a.status === 'Hired').length;
       const shortlisted = apps.filter(a => a.status === 'Shortlisted').length;
       const totalScore = apps.reduce((acc, curr) => acc + (curr.fitmentScore || 0), 0);
       const avgScore = apps.length > 0 ? Math.round(totalScore / apps.length) : 0;
 
-      // 🟢 2. Calculate Recent Trends (Last 7 Days)
+      
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
       const recentJobsCount = jobs.filter(j => new Date(j.createdAt || Date.now()) >= sevenDaysAgo).length;
       const recentAppsCount = apps.filter(a => new Date(a.createdAt || Date.now()) >= sevenDaysAgo).length;
 
-      // 🟢 3. Generate Dynamic SVG Chart Data (Last 4 Weeks Volume)
+      
       const now = new Date();
-      const weeklyCounts = [0, 0, 0, 0]; // [Week 1 (Oldest), Week 2, Week 3, Week 4 (Current)]
+      const weeklyCounts = [0, 0, 0, 0]; 
       
       apps.forEach(app => {
         const diffTime = Math.abs(now - new Date(app.createdAt || Date.now()));
@@ -69,12 +69,12 @@ const Analytics = () => {
         else if (diffDays <= 28) weeklyCounts[0]++;
       });
 
-      const maxCount = Math.max(...weeklyCounts, 1); // Prevent division by zero
+      const maxCount = Math.max(...weeklyCounts, 1); 
       
-      // Calculate dynamic X and Y coordinates for the SVG (0 to 400 width, 20 to 90 height)
+      
       const dynamicPoints = weeklyCounts.map((val, i) => {
-        const x = (i / 3) * 400; // Distribute evenly: 0, 133.3, 266.6, 400
-        const y = 90 - (val / maxCount) * 70; // Map count to Y coordinate (inverted for SVG)
+        const x = (i / 3) * 400; 
+        const y = 90 - (val / maxCount) * 70; 
         return { x, y, val };
       });
 
@@ -107,13 +107,13 @@ const Analytics = () => {
   const conversionRate = stats.totalApplicants > 0 ? Math.round((stats.totalHired / stats.totalApplicants) * 100) : 0;
   const shortlistRate = stats.totalApplicants > 0 ? Math.round((stats.totalShortlisted / stats.totalApplicants) * 100) : 0;
 
-  // 🟢 Build Dynamic SVG Path String
+  
   let svgLinePath = "";
   let svgAreaPath = "";
   
   if (chartPoints.length === 4) {
     const p = chartPoints;
-    // Creates a smooth Bezier curve through the 4 dynamic points
+    
     svgLinePath = `M${p[0].x},${p[0].y} C${p[0].x + 45},${p[0].y} ${p[1].x - 45},${p[1].y} ${p[1].x},${p[1].y} C${p[1].x + 45},${p[1].y} ${p[2].x - 45},${p[2].y} ${p[2].x},${p[2].y} C${p[2].x + 45},${p[2].y} ${p[3].x - 45},${p[3].y} ${p[3].x},${p[3].y}`;
     svgAreaPath = `${svgLinePath} L400,100 L0,100 Z`;
   }
@@ -137,11 +137,11 @@ const Analytics = () => {
           </div>
         </header>
 
-        {/* 📊 MAIN CONTENT */}
+        {/* MAIN CONTENT */}
         <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
           <div className="max-w-7xl mx-auto space-y-6">
 
-            {/* 📈 KPI GRID */}
+            {/* KPI GRID */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
               <KpiCard title="Active Roles" value={stats.totalJobs} icon={<Briefcase />} trend={`+${trends.recentJobs} this week`} color="blue" />
               <KpiCard title="Total Volume" value={stats.totalApplicants} icon={<Users />} trend={`+${trends.recentApps} this week`} color="indigo" />
@@ -149,7 +149,7 @@ const Analytics = () => {
               <KpiCard title="Hired" value={stats.totalHired} icon={<CheckCircle2 />} trend={`${conversionRate}% Conversion`} color="emerald" />
             </div>
 
-            {/* 📉 MODERN CHARTS ROW */}
+            {/* MODERN CHARTS ROW */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               
               {/* SVG Area Chart (Application Volume Trend) */}
@@ -165,7 +165,7 @@ const Analytics = () => {
                   </div>
                 </div>
 
-                {/* 🔥 DYNAMIC SVG AREA CHART */}
+                {/* DYNAMIC SVG AREA CHART */}
                 <div className="relative w-full h-48 mt-auto">
                   {chartPoints.length === 4 && (
                     <svg viewBox="0 0 400 100" className="w-full h-full overflow-visible" preserveAspectRatio="none">
@@ -232,7 +232,7 @@ const Analytics = () => {
 
             </div>
 
-            {/* 🔄 HORIZONTAL FUNNEL (Dynamic Dropoffs) */}
+            {/* HORIZONTAL FUNNEL (Dynamic Dropoffs) */}
             <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
               <h3 className="text-lg font-black text-gray-900 mb-8">Conversion Funnel</h3>
               

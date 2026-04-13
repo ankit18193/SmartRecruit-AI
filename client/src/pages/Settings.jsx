@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-// 🔥 FIXED PATH: Based on your folder structure (recruiter/ folder is 2 levels deep from src)
+
 import Sidebar from "../components/common/sideBar";
 import { 
   Bell, Lock, Eye, AlertTriangle, Shield, 

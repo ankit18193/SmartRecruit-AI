@@ -128,14 +128,13 @@ const CandidateDashboard = () => {
     socketRef.current.on("resumeUpdated", (data) => {
       console.log("⚡ REALTIME UPDATE RECEIVED:", data);
 
-      // ✅ IMPORTANT: Use the REF to check the ID, NOT the state variable!
-      // This prevents the ReferenceError and Closure traps.
+      
       if (activeResumeId.current !== data.resumeId) return;
 
       setSelectedResume((prev) => ({
         ...prev,
         ...data,
-        status: "Completed" // Force UI update
+        status: "Completed" 
       }));
 
       setStats((prev) => ({
@@ -149,45 +148,71 @@ const CandidateDashboard = () => {
     return () => {
       if (socketRef.current) socketRef.current.disconnect();
     };
-  }, []); // 🔥 EMPTY ARRAY: Ye socket ko sirf ek baar connect karega!
+  }, []); 
 
   const handleResumeUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const file = e.target.files[0];
+    if (!file) return;
 
-    const formData = new FormData();
-    formData.append("resume", file);
+    const formData = new FormData();
+    formData.append("resume", file);
 
-    try {
-      setUploading(true);
+    try {
+      setUploading(true);
 
-      // 🔥 CLEAR OLD DATA FIRST
-      setSelectedResume(null);
-      setStats((prev) => ({
-        ...prev,
-        aiScore: 0,
-      }));
-      setResumeJobs([]);
+      
+      setSelectedResume(null);
+      setStats((prev) => ({ ...prev, aiScore: 0 }));
+      setResumeJobs([]);
 
-      const res = await API.post("/resume/analyze", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await API.post("/resume/analyze", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-      console.log("📄 UPLOADED RESUME RESPONSE:", res.data);
+      console.log(" UPLOADED RESUME RESPONSE:", res.data);
 
-      // 🔥 STORE ONLY ID
-      setSelectedResume({
-        _id: res.data.id,
-        status: res.data.status,
-      });
+      
+      activeResumeId.current = res.data.id;
 
-      toast.success("Resume uploaded. Processing started...");
-    } catch {
-      toast.error("Upload failed");
-    } finally {
+      
+      setSelectedResume({
+        _id: res.data.id,
+        status: "Pending", 
+        fileName: file.name
+      });
+
+      toast.success("Resume uploaded. AI is processing...");
+
+      
+      const pollInterval = setInterval(async () => {
+        try {
+          const checkRes = await API.get("/resume/my-resumes");
+          const latestResume = checkRes.data[0];
+
+          if (latestResume && latestResume.status === "Completed") {
+            setSelectedResume(latestResume); 
+            setStats((prev) => ({ ...prev, aiScore: latestResume.aiScore || 0 }));
+            clearInterval(pollInterval); 
+            setUploading(false); 
+            toast.success("AI Insights ready! ✨");
+          }
+        } catch (err) {
+          console.error("Polling error", err);
+        }
+      }, 3000); 
+
+      
+      setTimeout(() => {
+        clearInterval(pollInterval);
+        if(uploading) setUploading(false); 
+      }, 15000);
+
+    } catch {
+      toast.error("Upload failed");
       setUploading(false);
-    }
-  };
+    } 
+    
+  };
 
   if (loading) {
     return (

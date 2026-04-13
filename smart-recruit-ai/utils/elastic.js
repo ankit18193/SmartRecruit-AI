@@ -9,7 +9,7 @@ const client = new Client({
   requestTimeout: 60000,
 });
 
-// 🔥 CREATE INDEX
+
 async function createJobIndex() {
   const indexExists = await client.indices.exists({ index: "jobs" });
 

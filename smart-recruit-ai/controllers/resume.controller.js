@@ -11,7 +11,7 @@ async function analyze(req, res) {
 
     const resumeUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
 
-    // ✅ CREATE NEW RESUME (FIXED)
+    
     const resume = await Resume.create({
       candidateId: req.user.id,
       resumeUrl,
@@ -26,7 +26,7 @@ async function analyze(req, res) {
       {
         filePath: req.file.path,
         candidateId: req.user.id,
-        resumeId: resume._id, // ✅ NEW UNIQUE ID
+        resumeId: resume._id, 
         fileName: req.file.originalname,
       },
       {

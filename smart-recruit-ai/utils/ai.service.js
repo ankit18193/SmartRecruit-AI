@@ -1,14 +1,13 @@
 const { HfInference } = require("@huggingface/inference");
 const Groq = require("groq-sdk");
 
-// ⏱️ TIMEOUT
+
 const timeout = (ms) =>
   new Promise((_, reject) =>
     setTimeout(() => reject(new Error("TIMEOUT")), ms),
   );
 
-// 🧠 GROQ (PRIMARY)
-// 🧠 GROQ (PRIMARY)
+
 async function callGroq(systemRules, resumeText) {
   if (!process.env.GROQ_API_KEY) throw new Error("Missing GROQ_API_KEY in ENV");
   const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
@@ -38,7 +37,7 @@ async function callGroq(systemRules, resumeText) {
   }
 }
 
-// 🧠 HUGGING FACE (FALLBACK)
+
 async function callHuggingFace(systemRules, resumeText) {
   if (!process.env.HF_API_KEY) throw new Error("Missing HF_API_KEY in ENV");
   const hf = new HfInference(process.env.HF_API_KEY);
@@ -56,7 +55,7 @@ async function callHuggingFace(systemRules, resumeText) {
           },
         ],
         max_tokens: 2000,
-        temperature: 0.3, // 🔥 Fixed temperature here too
+        temperature: 0.3, 
       }),
       timeout(15000),
     ]);
@@ -81,17 +80,17 @@ You must:
 - Provide a HIGH-IMPACT growth roadmap
 - Make the candidate feel: "I am closer to success than I thought"
 
-⚠️ CRITICAL SYSTEM INSTRUCTION:
+ CRITICAL SYSTEM INSTRUCTION:
 You are a backend API system. You MUST return ONLY a raw, minified JSON object.
 - DO NOT use markdown
 - DO NOT add explanations outside JSON
 - Output must be VALID JSON ONLY
-// 🔥 UPGRADE 1: Prevent JSON escaping errors
+//  UPGRADE 1: Prevent JSON escaping errors
 - Ensure all double quotes inside string values are properly escaped (e.g., use \\" instead of ").
 
 ---
 
-📦 OUTPUT FORMAT (STRICT SCHEMA):
+ OUTPUT FORMAT (STRICT SCHEMA):
 
 {
   "aiScore": number,
@@ -162,7 +161,7 @@ You are a backend API system. You MUST return ONLY a raw, minified JSON object.
 
 ---
 
-📌 ANALYSIS INTELLIGENCE RULES:
+  ANALYSIS INTELLIGENCE RULES:
 
 1. SCORE CALCULATION (STRICT):
 - Skills depth → 30%
@@ -181,13 +180,13 @@ Reflect how close the candidate is to getting hired TODAY.
 - job-ready → can clear interviews
 - top-tier → strong product-level engineer
 
-// 🔥 UPGRADE 2: The Anti-Hallucination Protocol
+//  UPGRADE 2: The Anti-Hallucination Protocol
 4. MISSING DATA HANDLING:
 If the candidate has ZERO projects, ZERO certifications, or NO education listed, DO NOT invent them. Return an empty array [] or 0. Use the 'missingSkills' and 'suggestions' to aggressively coach them on building projects to fill this empty space.
 
 ---
 
-💡 TONE ENGINE (VERY IMPORTANT):
+ TONE ENGINE (VERY IMPORTANT):
 
 You must follow:
 - 10% critique
@@ -204,7 +203,7 @@ ALWAYS:
 - convert weaknesses → opportunities
 - make candidate feel they are "1–2 steps away from breakthrough"
 
-⚠️ ANTI-GENERIC OUTPUT FILTER:
+ ANTI-GENERIC OUTPUT FILTER:
 Avoid repeating common suggestions like:
 - Cloud Computing
 - Cybersecurity
@@ -219,7 +218,7 @@ Otherwise, DO NOT mention them.
 
 ---
 
-⚠️ DIVERSITY ENFORCEMENT RULE:
+ DIVERSITY ENFORCEMENT RULE:
 
 Across strengths and missingSkills:
 - You MUST avoid repeating common industry suggestions across candidates.
@@ -234,7 +233,7 @@ STRICT RULE:
 
 If suggestions look similar to a typical software engineer template → REWRITE them.
 
-⚠️ SKILL PROXIMITY RULE:
+ SKILL PROXIMITY RULE:
 
 You MUST identify gaps based on what the candidate is ALREADY doing.
 
@@ -245,32 +244,32 @@ Example:
 
 DO NOT jump to unrelated domains.
 
-⚠️ STACK-BASED ANALYSIS:
+ STACK-BASED ANALYSIS:
 
 Every missing skill MUST be an extension of:
 - existing tools
 - existing projects
 - existing architecture
 
-❌ BAD:
+ BAD:
 "Learn Machine Learning"
 
-✅ GOOD:
+ GOOD:
 "Candidate uses BullMQ but lacks deeper understanding of distributed job orchestration patterns like event-driven microservices"
 
 ---
 
-🧠 REASONING RULES (MAXIMUM DEPTH REQUIRED):
+ REASONING RULES (MAXIMUM DEPTH REQUIRED):
 
-⚠️ CRITICAL PERSONALIZATION RULE:
+ CRITICAL PERSONALIZATION RULE:
 - EVERY insight MUST be derived directly from the resume content.
 - You MUST explicitly reference technologies, tools, projects, or experience mentioned in the resume.
 - DO NOT generate generic career advice.
 
-❌ BAD EXAMPLE:
+ BAD EXAMPLE:
 "Learn Cloud Computing to improve scalability"
 
-✅ GOOD EXAMPLE:
+ GOOD EXAMPLE:
 "The candidate has experience with Redis and BullMQ for backend systems but has no exposure to cloud platforms like AWS or GCP, which limits their ability to deploy scalable distributed systems."
 
 - If two resumes are different, the output MUST be noticeably different.
@@ -278,7 +277,7 @@ Every missing skill MUST be an extension of:
 
 ---
 
-⚠️ THINKING PRIORITY RULE:
+ THINKING PRIORITY RULE:
 Focus on depth over quantity.
 If fewer insights are more accurate, prefer fewer.
 Do NOT generate filler content just to meet structure requirements.
@@ -340,7 +339,7 @@ If their resume lacks quantifiable metrics (e.g., "improved speed by 40%"), expl
 
 ---
 
-⚠️ FINAL HARD RULE:
+ FINAL HARD RULE:
 
 You MUST include at least 2 UNIQUE technologies or project names from the resume inside EACH:
 - strength reasoning
@@ -374,43 +373,43 @@ RESUME TEXT:
   try {
     let text = "";
 
-    // 🥇 GROQ FIRST
+   
     try {
-      // 🔥 Pass BOTH variables!
+      
       text = await callGroq(prompt, resumeText);
-      console.log("✅ GROQ SUCCESS");
+      console.log(" GROQ SUCCESS");
     } catch (groqError) {
-      console.log("⚠️ GROQ FAILED → switching to HF");
+      console.log(" GROQ FAILED → switching to HF");
 
       try {
-        // 🔥 Pass BOTH variables!
+        
         text = await callHuggingFace(prompt, resumeText);
-        console.log("✅ HF SUCCESS");
+        console.log(" HF SUCCESS");
       } catch (hfError) {
-        console.log("❌ BOTH AI FAILED");
+        console.log(" BOTH AI FAILED");
         throw new Error("AI_ANALYSIS_FAILED_ALL_RETRIES");
       }
     }
 
-    // ❌ EMPTY CHECK
+    
     if (!text || text.length < 20) {
-      console.log("❌ EMPTY AI RESPONSE");
+      console.log(" EMPTY AI RESPONSE");
       throw new Error("EMPTY_AI_RESPONSE");
     }
 
     console.log("AI RESPONSE RECEIVED (length):", text.length);
 
-    // 🧹 CLEAN
+    
     text = text
       .replace(/```json/gi, "")
       .replace(/```/g, "")
       .trim();
 
-    // ✅ SAFE JSON EXTRACTION
+    
     const match = text.match(/\{[\s\S]*\}/);
 
     if (!match) {
-      console.log("❌ JSON NOT FOUND");
+      console.log(" JSON NOT FOUND");
       throw new Error("INVALID_JSON_FORMAT");
     }
 
@@ -421,11 +420,11 @@ RESUME TEXT:
     try {
       aiParsed = JSON.parse(jsonString);
     } catch (parseError) {
-      console.log("❌ JSON PARSE FAILED");
+      console.log("JSON PARSE FAILED");
       throw new Error("JSON_PARSE_FAILED");
     }
 
-    // ✅ MAIN MAPPING (UNCHANGED)
+    
     finalParsedData = {
       aiScore: typeof aiParsed.aiScore === "number" ? aiParsed.aiScore : 0,
       confidenceScore:
@@ -465,7 +464,7 @@ RESUME TEXT:
   }
 }
 
-// 🧠 GENERIC RESPONSE (NOW USING GROQ)
+
 async function generateAIResponse(prompt) {
   try {
     return await callGroq(prompt);
